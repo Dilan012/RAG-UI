@@ -3,6 +3,7 @@ import './App.css'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import { ChatPage } from './pages/ChatPage'
+import { ServerErrorPage } from './pages/ServerErrorPage'
 import { ProtectedRoute } from './components/common/ProtectedRoute'
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/500" element={<ServerErrorPage />} />
       <Route
         path="/"
         element={
