@@ -3,32 +3,25 @@ import { useNavigate } from 'react-router-dom'
 import { Sidebar } from '../components/chat/Sidebar'
 import { MessageThread } from '../components/chat/MessageThread'
 import { Composer } from '../components/chat/Composer'
-import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { useAppDispatch, useAppSelector, useApiRequest } from '../store/hooks'
 import { logout } from '../store/auth/auth-slice'
-import type { ChatMessage, Conversation } from '../types/chat'
-
-function makeId() {
-  return Math.random().toString(36).slice(2, 10)
-}
-
-function createConversation(title = 'New chat'): Conversation {
-  return {
-    id: makeId(),
-    title,
-    messages: [],
-    updatedAt: Date.now(),
-  }
-}
+import {
+  conversationCreated,
+  conversationDeleted,
+  conversationSelected,
+  sendChatMessage,
+  userMessageSent,
+} from '../store/chat/chat-slice'
 
 export function ChatPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const user = useAppSelector((state) => state.auth.user)
+  const conversations = useAppSelector((state) => state.chat.conversations)
+  const activeId = useAppSelector((state) => state.chat.activeId)
+  const { send, loading: isSending } = useApiRequest(sendChatMessage)
 
-  const [conversations, setConversations] = useState<Conversation[]>(() => [createConversation('Welcome')])
-  const [activeId, setActiveId] = useState<string>(() => conversations[0]!.id)
   const [draft, setDraft] = useState('')
-  const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const activeConversation = useMemo(
@@ -41,20 +34,12 @@ export function ChatPage() {
   }, [activeConversation?.messages.length])
 
   function handleNewConversation() {
-    const conversation = createConversation()
-    setConversations((prev) => [conversation, ...prev])
-    setActiveId(conversation.id)
+    dispatch(conversationCreated())
     setDraft('')
   }
 
   function handleDeleteConversation(id: string) {
-    setConversations((prev) => {
-      const next = prev.filter((c) => c.id !== id)
-      if (id === activeId && next.length > 0) {
-        setActiveId(next[0]!.id)
-      }
-      return next
-    })
+    dispatch(conversationDeleted(id))
   }
 
   function handleLogout() {
@@ -64,52 +49,15 @@ export function ChatPage() {
 
   async function handleSend() {
     const text = draft.trim()
-    if (!text || !activeConversation || isSending) return
+    if (!text || !activeConversation || isSending || !user) return
 
-    const userMessage: ChatMessage = {
-      id: makeId(),
-      role: 'user',
-      content: text,
-      createdAt: Date.now(),
-    }
-
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === activeConversation.id
-          ? {
-              ...c,
-              title: c.messages.length === 0 ? text.slice(0, 40) : c.title,
-              messages: [...c.messages, userMessage],
-              updatedAt: Date.now(),
-            }
-          : c,
-      ),
-    )
+    dispatch(userMessageSent({ conversationId: activeConversation.id, content: text }))
     setDraft('')
-    setIsSending(true)
 
     try {
-      // TODO: replace with a real call to the RAG backend's /chat endpoint via apiClient
-      const reply = await new Promise<string>((resolve) =>
-        setTimeout(() => resolve(`This is a placeholder response to: "${text}"`), 700),
-      )
-
-      const assistantMessage: ChatMessage = {
-        id: makeId(),
-        role: 'assistant',
-        content: reply,
-        createdAt: Date.now(),
-      }
-
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.id === activeConversation.id
-            ? { ...c, messages: [...c.messages, assistantMessage], updatedAt: Date.now() }
-            : c,
-        ),
-      )
-    } finally {
-      setIsSending(false)
+      await send({ conversationId: activeConversation.id, customerId: user.id, message: text })
+    } catch {
+      // failure is already turned into an assistant bubble by chat-slice's rejected case
     }
   }
 
@@ -123,7 +71,7 @@ export function ChatPage() {
       <Sidebar
         conversations={sortedConversations}
         activeId={activeId}
-        onSelect={setActiveId}
+        onSelect={(id) => dispatch(conversationSelected(id))}
         onNew={handleNewConversation}
         onDelete={handleDeleteConversation}
         userName={user?.name}

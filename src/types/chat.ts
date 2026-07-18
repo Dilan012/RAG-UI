@@ -11,3 +11,18 @@ export interface Conversation {
   messages: ChatMessage[]
   updatedAt: number
 }
+
+export interface ChatPayload {
+  customerId: string
+  message: string
+}
+
+export interface ChatReply {
+  reply: string
+}
+
+export interface SendChatMessagePayload {
+  conversationId: string
+  customerId: string
+  message: string
+}

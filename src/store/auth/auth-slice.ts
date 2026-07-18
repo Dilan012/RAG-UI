@@ -1,15 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { isAxiosError } from 'axios'
 import { authApi } from '../../api/auth-api'
+import { extractErrorMessage } from '../extract-error-message'
 import type { AuthResponse, AuthUser, LoginPayload, SignupPayload } from '../../types/auth'
-
-function extractErrorMessage(error: unknown, fallback: string): string {
-  if (isAxiosError(error) && typeof error.response?.data?.error === 'string') {
-    return error.response.data.error
-  }
-  return fallback
-}
 
 interface AuthState {
   user: AuthUser | null
