@@ -78,21 +78,33 @@
   font-size: 14px;
 }
 
+.rename-btn,
 .delete-btn {
   background: transparent;
   border: none;
   color: var(--text);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
   opacity: 0;
   transition: opacity 0.15s;
+  flex-shrink: 0;
 }
 
+.delete-btn {
+  font-size: 16px;
+}
+
+.conversation-item:hover .rename-btn,
 .conversation-item:hover .delete-btn {
   opacity: 1;
+}
+
+.rename-btn:hover {
+  color: var(--accent);
+  background: var(--accent-bg);
 }
 
 .delete-btn:hover {

@@ -1,16 +1,26 @@
-import type { Conversation } from '../../types/chat'
+import type { ConversationSummary } from '../../types/conversation'
 
 interface SidebarProps {
-  conversations: Conversation[]
-  activeId: string
+  conversations: ConversationSummary[]
+  activeId: string | null
   onSelect: (id: string) => void
   onNew: () => void
+  onRename: (id: string, currentName: string) => void
   onDelete: (id: string) => void
   userName?: string
   onLogout: () => void
 }
 
-export function Sidebar({ conversations, activeId, onSelect, onNew, onDelete, userName, onLogout }: SidebarProps) {
+export function Sidebar({
+  conversations,
+  activeId,
+  onSelect,
+  onNew,
+  onRename,
+  onDelete,
+  userName,
+  onLogout,
+}: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -26,7 +36,17 @@ export function Sidebar({ conversations, activeId, onSelect, onNew, onDelete, us
             className={`conversation-item ${c.id === activeId ? 'active' : ''}`}
             onClick={() => onSelect(c.id)}
           >
-            <div className="conversation-title">{c.title || 'New chat'}</div>
+            <div className="conversation-title">{c.name || 'New chat'}</div>
+            <button
+              className="rename-btn"
+              onClick={(e) => {
+                e.stopPropagation()
+                onRename(c.id, c.name)
+              }}
+              aria-label="Rename conversation"
+            >
+              ✎
+            </button>
             <button
               className="delete-btn"
               onClick={(e) => {

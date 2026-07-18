@@ -5,15 +5,17 @@ export interface ChatMessage {
   createdAt: number
 }
 
-export interface Conversation {
+export interface MessageSummary {
   id: string
-  title: string
-  messages: ChatMessage[]
-  updatedAt: number
+  conversationId: string | null
+  role: 'user' | 'assistant'
+  content: string
+  createdAt: string
 }
 
 export interface ChatPayload {
   message: string
+  conversationId?: string
 }
 
 export interface ChatReply {
