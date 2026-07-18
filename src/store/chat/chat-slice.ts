@@ -35,9 +35,9 @@ function appendAssistantMessage(state: ChatState, conversationId: string, conten
 
 export const sendChatMessage = createAsyncThunk<ChatReply, SendChatMessagePayload, { rejectValue: string }>(
   'chat/sendMessage',
-  async ({ customerId, message }, { rejectWithValue }) => {
+  async ({ message }, { rejectWithValue }) => {
     try {
-      return await chatApi.sendMessage({ customerId, message })
+      return await chatApi.sendMessage({ message })
     } catch (error) {
       return rejectWithValue(extractErrorMessage(error, 'Failed to get a response. Please try again.'))
     }

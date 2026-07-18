@@ -13,7 +13,6 @@ export interface Conversation {
 }
 
 export interface ChatPayload {
-  customerId: string
   message: string
 }
 
@@ -23,6 +22,5 @@ export interface ChatReply {
 
 export interface SendChatMessagePayload {
   conversationId: string
-  customerId: string
   message: string
 }

@@ -55,7 +55,7 @@ export function ChatPage() {
     setDraft('')
 
     try {
-      await send({ conversationId: activeConversation.id, customerId: user.id, message: text })
+      await send({ conversationId: activeConversation.id, message: text })
     } catch {
       // failure is already turned into an assistant bubble by chat-slice's rejected case
     }
