@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { ConversationSummary } from '../../types/conversation'
 
 interface SidebarProps {
@@ -29,6 +30,9 @@ export function Sidebar({
           + New
         </button>
       </div>
+      <Link to="/knowledge-base" className="knowledge-base-link">
+        Knowledge base
+      </Link>
       <div className="conversation-list">
         {conversations.map((c) => (
           <div

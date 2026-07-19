@@ -3,6 +3,7 @@ import './App.css'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import { ChatPage } from './pages/ChatPage'
+import { KnowledgeBasePage } from './pages/KnowledgeBasePage'
 import { ServerErrorPage } from './pages/ServerErrorPage'
 import { ProtectedRoute } from './components/common/ProtectedRoute'
 
@@ -17,6 +18,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/knowledge-base"
+        element={
+          <ProtectedRoute>
+            <KnowledgeBasePage />
           </ProtectedRoute>
         }
       />
