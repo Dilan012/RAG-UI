@@ -5,4 +5,5 @@ export interface KnowledgeBaseFile {
   uploadedAt: number
   status: 'uploading' | 'uploaded' | 'error'
   errorMessage?: string
+  source: 'file' | 'text'
 }

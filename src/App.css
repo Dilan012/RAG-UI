@@ -502,6 +502,50 @@
   display: none;
 }
 
+/* Text input form */
+.text-input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.text-input-textarea {
+  resize: vertical;
+  min-height: 90px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text-h);
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.text-input-textarea:focus {
+  outline: none;
+  border-color: var(--accent-strong);
+}
+
+.text-input-submit-btn {
+  align-self: flex-end;
+  background: var(--accent-strong);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.text-input-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.text-input-submit-btn:not(:disabled):hover {
+  background: var(--accent);
+}
+
 /* File list */
 .file-list {
   list-style: none;

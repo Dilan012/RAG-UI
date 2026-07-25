@@ -18,4 +18,9 @@ export const embeddingApi = {
       })
       .then((res) => res.data.data)
   },
+  ingestText(text: string) {
+    return apiClient
+      .post<ApiSuccessResponse<IngestResult>>('/embeddings/ingest', { text })
+      .then((res) => res.data.data)
+  },
 }
