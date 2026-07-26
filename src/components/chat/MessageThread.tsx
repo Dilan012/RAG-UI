@@ -1,4 +1,5 @@
 import type { RefObject } from 'react'
+import { BrandLogo } from '../common/BrandLogo'
 import type { ChatMessage } from '../../types/chat'
 
 function formatTime(ts: number) {
@@ -15,23 +16,49 @@ interface MessageThreadProps {
 export function MessageThread({ title, messages, isSending, endRef }: MessageThreadProps) {
   return (
     <>
-      <div className="chat-header">{title || 'New chat'}</div>
+      <div className="chat-header">
+        <span className="chat-header-title">{title || 'New chat'}</span>
+      </div>
       <div className="messages">
-        {messages.length === 0 && <div className="empty-state">Ask anything to start the conversation.</div>}
-        {messages.map((m) => (
-          <div key={m.id} className={`message-row ${m.role}`}>
-            <div className="message-bubble">
-              <div className="message-content">{m.content}</div>
-              <div className="message-time">{formatTime(m.createdAt)}</div>
-            </div>
+        {messages.length === 0 && (
+          <div className="empty-state">
+            <BrandLogo size={36} showWordmark={false} />
+            <p>Ask anything to start the conversation.</p>
           </div>
-        ))}
+        )}
+        {messages.map((m) =>
+          m.role === 'assistant' ? (
+            <div key={m.id} className="message-row assistant">
+              <div className="message-avatar assistant-avatar">
+                <BrandLogo size={16} showWordmark={false} />
+              </div>
+              <div className="message-body">
+                <div className="message-sender">Waypoint</div>
+                <div className="message-content">{m.content}</div>
+                <div className="message-time">{formatTime(m.createdAt)}</div>
+              </div>
+            </div>
+          ) : (
+            <div key={m.id} className="message-row user">
+              <div className="message-bubble">
+                <div className="message-content">{m.content}</div>
+                <div className="message-time">{formatTime(m.createdAt)}</div>
+              </div>
+            </div>
+          ),
+        )}
         {isSending && (
           <div className="message-row assistant">
-            <div className="message-bubble typing">
-              <span className="dot" />
-              <span className="dot" />
-              <span className="dot" />
+            <div className="message-avatar assistant-avatar">
+              <BrandLogo size={16} showWordmark={false} />
+            </div>
+            <div className="message-body">
+              <div className="message-sender">Waypoint</div>
+              <div className="typing-indicator">
+                <span className="dot" />
+                <span className="dot" />
+                <span className="dot" />
+              </div>
             </div>
           </div>
         )}

@@ -4,8 +4,12 @@ import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import { ChatPage } from './pages/ChatPage'
 import { KnowledgeBasePage } from './pages/KnowledgeBasePage'
+import { ConnectorsPage } from './pages/ConnectorsPage'
+import { SkillsPage } from './pages/SkillsPage'
+import { AgentPage } from './pages/AgentPage'
 import { ServerErrorPage } from './pages/ServerErrorPage'
 import { ProtectedRoute } from './components/common/ProtectedRoute'
+import { AppLayout } from './components/layout/AppLayout'
 
 function App() {
   return (
@@ -14,21 +18,18 @@ function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/500" element={<ServerErrorPage />} />
       <Route
-        path="/"
         element={
           <ProtectedRoute>
-            <ChatPage />
+            <AppLayout />
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="/knowledge-base"
-        element={
-          <ProtectedRoute>
-            <KnowledgeBasePage />
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route path="/" element={<ChatPage />} />
+        <Route path="/knowledge-base" element={<KnowledgeBasePage />} />
+        <Route path="/connectors" element={<ConnectorsPage />} />
+        <Route path="/skills" element={<SkillsPage />} />
+        <Route path="/agent" element={<AgentPage />} />
+      </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

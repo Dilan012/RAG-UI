@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useApiRequest } from '../store/hooks'
 import { login } from '../store/auth/auth-slice'
+import { BrandLogo } from '../components/common/BrandLogo'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -24,7 +25,11 @@ export function LoginPage() {
   return (
     <div className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
-        <h1>Log in</h1>
+        <div className="auth-brand">
+          <BrandLogo size={32} />
+        </div>
+        <h1>Welcome back</h1>
+        <p className="auth-subtitle">Log in to continue to Waypoint</p>
         {error && <div className="auth-error">{error}</div>}
         <label>
           Email
