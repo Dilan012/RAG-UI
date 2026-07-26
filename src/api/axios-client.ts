@@ -1,6 +1,10 @@
 import axios, { isAxiosError } from 'axios'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'
+// VITE_API_BASE_URL is the backend's origin only (e.g. http://localhost:5090,
+// or '' for same-origin when a reverse proxy forwards /api to the backend).
+// Every backend route lives under /api (see RAG's index.ts), so that prefix
+// is appended once here rather than in each api/*.ts file.
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'}/api`
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
