@@ -83,6 +83,7 @@ export function AppLayout() {
 
       <main className="chat-panel">
         <Outlet />
+        <footer className="content-footer">Waypoint can make mistakes. Verify important information.</footer>
       </main>
     </div>
   )
