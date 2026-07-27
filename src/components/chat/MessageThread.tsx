@@ -1,4 +1,5 @@
 import type { RefObject } from 'react'
+import Markdown from 'react-markdown'
 import { BrandLogo } from '../common/BrandLogo'
 import type { ChatMessage } from '../../types/chat'
 
@@ -38,7 +39,9 @@ export function MessageThread({ title, messages, endRef }: MessageThreadProps) {
                     first chunk yet, so show a typing indicator in its place. */}
                 {m.content ? (
                   <>
-                    <div className="message-content">{m.content}</div>
+                    <div className="message-content markdown-content">
+                      <Markdown>{m.content}</Markdown>
+                    </div>
                     <div className="message-time">{formatTime(m.createdAt)}</div>
                   </>
                 ) : (
