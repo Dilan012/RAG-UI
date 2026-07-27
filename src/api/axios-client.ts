@@ -6,6 +6,10 @@ import axios, { isAxiosError } from 'axios'
 // is appended once here rather than in each api/*.ts file.
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'}/api`
 
+// Exposed for chat-api.ts's streamed /chat call, which uses fetch (not apiClient)
+// since axios doesn't expose a readable stream for the response body in the browser.
+export const API_BASE_URL = BASE_URL
+
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {

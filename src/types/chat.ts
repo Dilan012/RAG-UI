@@ -18,8 +18,9 @@ export interface ChatPayload {
   conversationId?: string
 }
 
-export interface ChatReply {
+export interface ChatStreamResult {
   reply: string
+  failed: boolean
 }
 
 export interface SendChatMessagePayload {

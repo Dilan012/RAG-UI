@@ -9,11 +9,10 @@ function formatTime(ts: number) {
 interface MessageThreadProps {
   title: string
   messages: ChatMessage[]
-  isSending: boolean
   endRef: RefObject<HTMLDivElement | null>
 }
 
-export function MessageThread({ title, messages, isSending, endRef }: MessageThreadProps) {
+export function MessageThread({ title, messages, endRef }: MessageThreadProps) {
   return (
     <>
       <div className="chat-header">
@@ -34,8 +33,21 @@ export function MessageThread({ title, messages, isSending, endRef }: MessageThr
               </div>
               <div className="message-body">
                 <div className="message-sender">Waypoint</div>
-                <div className="message-content">{m.content}</div>
-                <div className="message-time">{formatTime(m.createdAt)}</div>
+                {/* Empty content means the reply is still streaming in — the
+                    placeholder from assistantMessageStarted hasn't received its
+                    first chunk yet, so show a typing indicator in its place. */}
+                {m.content ? (
+                  <>
+                    <div className="message-content">{m.content}</div>
+                    <div className="message-time">{formatTime(m.createdAt)}</div>
+                  </>
+                ) : (
+                  <div className="typing-indicator">
+                    <span className="dot" />
+                    <span className="dot" />
+                    <span className="dot" />
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -46,21 +58,6 @@ export function MessageThread({ title, messages, isSending, endRef }: MessageThr
               </div>
             </div>
           ),
-        )}
-        {isSending && (
-          <div className="message-row assistant">
-            <div className="message-avatar assistant-avatar">
-              <BrandLogo size={16} showWordmark={false} />
-            </div>
-            <div className="message-body">
-              <div className="message-sender">Waypoint</div>
-              <div className="typing-indicator">
-                <span className="dot" />
-                <span className="dot" />
-                <span className="dot" />
-              </div>
-            </div>
-          </div>
         )}
         <div ref={endRef} />
       </div>

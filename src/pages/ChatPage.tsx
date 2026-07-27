@@ -31,9 +31,13 @@ export function ChatPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId])
 
+  // Depends on total content length, not just message count, so the view keeps
+  // following along as a streamed reply grows in place rather than only jumping
+  // once per new message.
+  const totalContentLength = messages.reduce((sum, m) => sum + m.content.length, 0)
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages.length])
+  }, [messages.length, totalContentLength])
 
   async function handleSend() {
     const text = draft.trim()
@@ -55,12 +59,7 @@ export function ChatPage() {
 
   return (
     <>
-      <MessageThread
-        title={activeConversation.name}
-        messages={messages}
-        isSending={isSending}
-        endRef={messagesEndRef}
-      />
+      <MessageThread title={activeConversation.name} messages={messages} endRef={messagesEndRef} />
       <Composer value={draft} onChange={setDraft} onSend={handleSend} isSending={isSending} />
     </>
   )

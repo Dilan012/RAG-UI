@@ -5,7 +5,7 @@ import { conversationApi } from '../../api/conversation-api'
 import { messageApi } from '../../api/message-api'
 import { extractErrorMessage } from '../extract-error-message'
 import { makeId } from '../../utils/make-id'
-import type { ChatMessage, ChatReply, MessageSummary, SendChatMessagePayload } from '../../types/chat'
+import type { ChatMessage, ChatStreamResult, MessageSummary, SendChatMessagePayload } from '../../types/chat'
 import type { ConversationSummary, UpdateConversationPayload } from '../../types/conversation'
 
 interface ChatState {
@@ -27,10 +27,14 @@ function toChatMessage(message: MessageSummary): ChatMessage {
   }
 }
 
-function appendAssistantMessage(state: ChatState, conversationId: string, content: string) {
-  const messages = state.messagesByConversationId[conversationId] ?? []
-  messages.push({ id: makeId(), role: 'assistant', content, createdAt: Date.now() })
-  state.messagesByConversationId[conversationId] = messages
+// The in-flight assistant message is always the last entry in the conversation's list —
+// assistantMessageStarted (dispatched synchronously before the stream begins) guarantees
+// that, so every chunk/completion/failure handler below can just target list[-1] rather
+// than searching by id.
+function lastAssistantMessage(state: ChatState, conversationId: string): ChatMessage | undefined {
+  const messages = state.messagesByConversationId[conversationId]
+  const last = messages?.[messages.length - 1]
+  return last?.role === 'assistant' ? last : undefined
 }
 
 export const fetchConversations = createAsyncThunk<ConversationSummary[], undefined, { rejectValue: string }>(
@@ -89,13 +93,21 @@ export const fetchMessages = createAsyncThunk<MessageSummary[], string, { reject
   },
 )
 
-export const sendChatMessage = createAsyncThunk<ChatReply, SendChatMessagePayload, { rejectValue: string }>(
+export const sendChatMessage = createAsyncThunk<ChatStreamResult, SendChatMessagePayload, { rejectValue: string }>(
   'chat/sendMessage',
-  async ({ conversationId, message }, { rejectWithValue }) => {
+  async ({ conversationId, message }, { dispatch, rejectWithValue }) => {
+    dispatch(assistantMessageStarted({ conversationId }))
     try {
-      return await chatApi.sendMessage({ conversationId, message })
+      const result = await chatApi.streamMessage({ conversationId, message }, (chunk) => {
+        dispatch(assistantChunkAppended({ conversationId, chunk }))
+      })
+      if (result.failed) {
+        return rejectWithValue(result.reply || 'Failed to get a response. Please try again.')
+      }
+      return result
     } catch (error) {
-      return rejectWithValue(extractErrorMessage(error, 'Failed to get a response. Please try again.'))
+      const message = error instanceof Error ? error.message : 'Failed to get a response. Please try again.'
+      return rejectWithValue(message)
     }
   },
 )
@@ -111,6 +123,18 @@ const chatSlice = createSlice({
       const messages = state.messagesByConversationId[action.payload.conversationId] ?? []
       messages.push({ id: makeId(), role: 'user', content: action.payload.content, createdAt: Date.now() })
       state.messagesByConversationId[action.payload.conversationId] = messages
+    },
+    // Appends an empty placeholder the moment a reply starts streaming, so the message
+    // list already has a row to grow into — the UI shows a typing indicator in place of
+    // empty content until the first chunk arrives (see MessageThread).
+    assistantMessageStarted(state, action: PayloadAction<{ conversationId: string }>) {
+      const messages = state.messagesByConversationId[action.payload.conversationId] ?? []
+      messages.push({ id: makeId(), role: 'assistant', content: '', createdAt: Date.now() })
+      state.messagesByConversationId[action.payload.conversationId] = messages
+    },
+    assistantChunkAppended(state, action: PayloadAction<{ conversationId: string; chunk: string }>) {
+      const message = lastAssistantMessage(state, action.payload.conversationId)
+      if (message) message.content += action.payload.chunk
     },
   },
   extraReducers: (builder) => {
@@ -145,17 +169,25 @@ const chatSlice = createSlice({
         state.messagesByConversationId[action.meta.arg] = action.payload.map(toChatMessage)
       })
       .addCase(sendChatMessage.fulfilled, (state, action) => {
-        appendAssistantMessage(state, action.meta.arg.conversationId, action.payload.reply)
+        // Overwrite with the server's definitive final text rather than trusting
+        // whatever the chunk-by-chunk concatenation produced client-side.
+        const message = lastAssistantMessage(state, action.meta.arg.conversationId)
+        if (message) message.content = action.payload.reply
       })
       .addCase(sendChatMessage.rejected, (state, action) => {
-        appendAssistantMessage(
-          state,
-          action.meta.arg.conversationId,
-          action.payload ?? 'Failed to get a response. Please try again.',
-        )
+        const message = lastAssistantMessage(state, action.meta.arg.conversationId)
+        const errorText = action.payload ?? 'Failed to get a response. Please try again.'
+        if (message) {
+          message.content = errorText
+        } else {
+          const messages = state.messagesByConversationId[action.meta.arg.conversationId] ?? []
+          messages.push({ id: makeId(), role: 'assistant', content: errorText, createdAt: Date.now() })
+          state.messagesByConversationId[action.meta.arg.conversationId] = messages
+        }
       })
   },
 })
 
-export const { conversationSelected, userMessageSent } = chatSlice.actions
+export const { conversationSelected, userMessageSent, assistantMessageStarted, assistantChunkAppended } =
+  chatSlice.actions
 export default chatSlice.reducer
