@@ -2,7 +2,6 @@ import type { KnowledgeBaseFile } from '../../types/knowledge-base'
 
 interface FileListProps {
   files: KnowledgeBaseFile[]
-  onDelete: (id: string) => void
 }
 
 function formatSize(bytes: number): string {
@@ -42,7 +41,7 @@ function TextIcon() {
   )
 }
 
-export function FileList({ files, onDelete }: FileListProps) {
+export function FileList({ files }: FileListProps) {
   if (files.length === 0) {
     return <div className="empty-state">No knowledge base entries yet.</div>
   }
@@ -58,13 +57,6 @@ export function FileList({ files, onDelete }: FileListProps) {
               {formatSize(file.size)} · {statusText(file)}
             </div>
           </div>
-          <button
-            className="file-delete-btn"
-            onClick={() => onDelete(file.id)}
-            aria-label={`Delete ${file.name}`}
-          >
-            ×
-          </button>
         </li>
       ))}
     </ul>

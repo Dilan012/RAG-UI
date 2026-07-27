@@ -914,23 +914,6 @@
   margin-top: 2px;
 }
 
-.file-delete-btn {
-  background: transparent;
-  border: none;
-  color: var(--text);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  flex-shrink: 0;
-}
-
-.file-delete-btn:hover {
-  color: #b91c1c;
-  background: rgba(248, 113, 113, 0.12);
-}
-
 /* Connectors */
 .connector-banner {
   max-width: 720px;

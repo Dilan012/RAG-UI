@@ -1,15 +1,22 @@
+import { useEffect } from 'react'
 import { FileUpload } from '../components/knowledge-base/FileUpload'
 import { TextInput } from '../components/knowledge-base/TextInput'
 import { FileList } from '../components/knowledge-base/FileList'
 import { PageHeader } from '../components/common/PageHeader'
-import { useAppDispatch, useAppSelector, useApiRequest } from '../store/hooks'
-import { fileRemoved, ingestFile, ingestText } from '../store/knowledge-base/knowledge-base-slice'
+import { useAppSelector, useApiRequest } from '../store/hooks'
+import { fetchKnowledgeBaseFiles, ingestFile, ingestText } from '../store/knowledge-base/knowledge-base-slice'
 
 export function KnowledgeBasePage() {
-  const dispatch = useAppDispatch()
   const files = useAppSelector((state) => state.knowledgeBase.files)
+  const { send: loadFiles } = useApiRequest(fetchKnowledgeBaseFiles)
   const { send: uploadFile } = useApiRequest(ingestFile)
   const { send: addText, loading: isAddingText } = useApiRequest(ingestText)
+
+  useEffect(() => {
+    loadFiles(undefined).catch(() => {
+      // error is non-fatal; the list just stays empty
+    })
+  }, [loadFiles])
 
   function handleFilesSelected(newFiles: File[]) {
     for (const file of newFiles) {
@@ -23,10 +30,6 @@ export function KnowledgeBasePage() {
     addText(text).catch(() => {
       // failure is already reflected in the entry's status via the slice
     })
-  }
-
-  function handleDelete(id: string) {
-    dispatch(fileRemoved(id))
   }
 
   return (
@@ -56,7 +59,7 @@ export function KnowledgeBasePage() {
 
       <section className="knowledge-base-section">
         <h2 className="knowledge-base-section-title">Knowledge base entries</h2>
-        <FileList files={files} onDelete={handleDelete} />
+        <FileList files={files} />
       </section>
     </div>
   )
