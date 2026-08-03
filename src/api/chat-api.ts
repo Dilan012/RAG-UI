@@ -1,4 +1,5 @@
-import { API_BASE_URL } from './axios-client'
+import { apiClient, API_BASE_URL } from './axios-client'
+import type { ApiSuccessResponse } from '../types/api'
 import type { ChatPayload, ChatStreamResult } from '../types/chat'
 
 // Must match RAG's appConfig.chat.streamErrorSentinel exactly — written to the end of
@@ -54,5 +55,16 @@ export const chatApi = {
     const reply = failed ? full.split(STREAM_ERROR_SENTINEL).join('').trimEnd() : full
 
     return { reply, failed }
+  },
+
+  /**
+   * POST /chat/invoke — the same turn as streamMessage, just as one plain response
+   * instead of a live stream. Returns the same ChatStreamResult shape (failed is always
+   * false here — a rejected request just throws normally) so sendChatMessage can treat
+   * both modes identically after the call resolves.
+   */
+  async invokeMessage(payload: ChatPayload): Promise<ChatStreamResult> {
+    const res = await apiClient.post<ApiSuccessResponse<{ reply: string }>>('/chat/invoke', payload)
+    return { reply: res.data.data.reply, failed: false }
   },
 }

@@ -23,7 +23,10 @@ export interface ChatStreamResult {
   failed: boolean
 }
 
+export type ChatMode = 'stream' | 'invoke'
+
 export interface SendChatMessagePayload {
   conversationId: string
   message: string
+  mode: ChatMode
 }

@@ -1,13 +1,16 @@
 import type { KeyboardEvent } from 'react'
+import type { ChatMode } from '../../types/chat'
 
 interface ComposerProps {
   value: string
   onChange: (value: string) => void
   onSend: () => void
   isSending: boolean
+  mode: ChatMode
+  onModeChange: (mode: ChatMode) => void
 }
 
-export function Composer({ value, onChange, onSend, isSending }: ComposerProps) {
+export function Composer({ value, onChange, onSend, isSending, mode, onModeChange }: ComposerProps) {
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -17,6 +20,26 @@ export function Composer({ value, onChange, onSend, isSending }: ComposerProps) 
 
   return (
     <div className="composer">
+      <div className="composer-mode-toggle" role="radiogroup" aria-label="Response mode">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={mode === 'stream'}
+          className={mode === 'stream' ? 'active' : ''}
+          onClick={() => onModeChange('stream')}
+        >
+          Stream
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={mode === 'invoke'}
+          className={mode === 'invoke' ? 'active' : ''}
+          onClick={() => onModeChange('invoke')}
+        >
+          Invoke
+        </button>
+      </div>
       <div className="composer-bar">
         <textarea
           value={value}

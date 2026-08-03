@@ -95,19 +95,29 @@ export const fetchMessages = createAsyncThunk<MessageSummary[], string, { reject
 
 export const sendChatMessage = createAsyncThunk<ChatStreamResult, SendChatMessagePayload, { rejectValue: string }>(
   'chat/sendMessage',
-  async ({ conversationId, message }, { dispatch, rejectWithValue }) => {
+  async ({ conversationId, message, mode }, { dispatch, rejectWithValue }) => {
+    // Placeholder is added either way — in 'invoke' mode no chunks ever arrive, so it
+    // just shows the typing indicator (see MessageThread) until the single response
+    // resolves and overwrites it, same as the 'stream' fulfilled case below.
     dispatch(assistantMessageStarted({ conversationId }))
     try {
-      const result = await chatApi.streamMessage({ conversationId, message }, (chunk) => {
-        dispatch(assistantChunkAppended({ conversationId, chunk }))
-      })
+      const result =
+        mode === 'stream'
+          ? await chatApi.streamMessage({ conversationId, message }, (chunk) => {
+              dispatch(assistantChunkAppended({ conversationId, chunk }))
+            })
+          : await chatApi.invokeMessage({ conversationId, message })
+
       if (result.failed) {
         return rejectWithValue(result.reply || 'Failed to get a response. Please try again.')
       }
       return result
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to get a response. Please try again.'
-      return rejectWithValue(message)
+      // streamMessage throws a plain Error (fetch-based, message already extracted from
+      // the JSON body); invokeMessage throws an AxiosError — extractErrorMessage handles
+      // the latter, and falls back to error.message (covers the former) otherwise.
+      const fallback = error instanceof Error ? error.message : 'Failed to get a response. Please try again.'
+      return rejectWithValue(extractErrorMessage(error, fallback))
     }
   },
 )

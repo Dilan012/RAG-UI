@@ -3,6 +3,7 @@ import { MessageThread } from '../components/chat/MessageThread'
 import { Composer } from '../components/chat/Composer'
 import { useAppDispatch, useAppSelector, useApiRequest } from '../store/hooks'
 import { fetchMessages, sendChatMessage, userMessageSent } from '../store/chat/chat-slice'
+import type { ChatMode } from '../types/chat'
 
 export function ChatPage() {
   const dispatch = useAppDispatch()
@@ -14,6 +15,9 @@ export function ChatPage() {
   const { send: loadMessages } = useApiRequest(fetchMessages)
 
   const [draft, setDraft] = useState('')
+  // Local UI preference, not persisted state — lets you compare streaming vs. a plain
+  // request/response while experimenting, without needing two separate chat pages.
+  const [mode, setMode] = useState<ChatMode>('stream')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const activeConversation = useMemo(
@@ -47,7 +51,7 @@ export function ChatPage() {
     setDraft('')
 
     try {
-      await sendMessage({ conversationId: activeConversation.id, message: text })
+      await sendMessage({ conversationId: activeConversation.id, message: text, mode })
     } catch {
       // failure is already turned into an assistant bubble by chat-slice's rejected case
     }
@@ -60,7 +64,14 @@ export function ChatPage() {
   return (
     <>
       <MessageThread title={activeConversation.name} messages={messages} endRef={messagesEndRef} />
-      <Composer value={draft} onChange={setDraft} onSend={handleSend} isSending={isSending} />
+      <Composer
+        value={draft}
+        onChange={setDraft}
+        onSend={handleSend}
+        isSending={isSending}
+        mode={mode}
+        onModeChange={setMode}
+      />
     </>
   )
 }

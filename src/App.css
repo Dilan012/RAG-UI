@@ -517,8 +517,43 @@
 /* Composer */
 .composer {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   padding: 12px 28px 24px;
+}
+
+.composer-mode-toggle {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  max-width: 720px;
+  justify-content: flex-end;
+}
+
+.composer-mode-toggle button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.composer-mode-toggle button:first-child {
+  border-radius: 999px 0 0 999px;
+  border-right: none;
+}
+
+.composer-mode-toggle button:last-child {
+  border-radius: 0 999px 999px 0;
+}
+
+.composer-mode-toggle button.active {
+  background: var(--accent-bg);
+  border-color: var(--accent-strong);
+  color: var(--accent-strong);
 }
 
 .composer-bar {
