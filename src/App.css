@@ -182,7 +182,7 @@
 }
 
 .delete-btn:hover {
-  color: #b91c1c;
+  color: #f87171;
   background: rgba(248, 113, 113, 0.12);
 }
 
@@ -719,7 +719,7 @@
 .auth-error {
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid rgba(248, 113, 113, 0.4);
-  color: #b91c1c;
+  color: #f87171;
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   font-size: 13px;
@@ -922,7 +922,7 @@
 }
 
 .file-item-error .file-meta {
-  color: #b91c1c;
+  color: #f87171;
 }
 
 .file-icon {
@@ -967,7 +967,7 @@
 .connector-banner-error {
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid rgba(248, 113, 113, 0.4);
-  color: #b91c1c;
+  color: #f87171;
 }
 
 .connector-list {
@@ -1085,8 +1085,8 @@
 }
 
 .connector-disconnect-btn:not(:disabled):hover {
-  border-color: #b91c1c;
-  color: #b91c1c;
+  border-color: #f87171;
+  color: #f87171;
 }
 
 /* Demo badge + toggle switch (Skills / Agent pages) */
